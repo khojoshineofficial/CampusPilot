@@ -11,7 +11,7 @@ const eventRegistrationSchema = new mongoose.Schema({
   qrToken: { type: String, unique: true },
 }, { timestamps: true });
 
+// qrToken index is created automatically by unique:true
 eventRegistrationSchema.index({ event: 1, user: 1 }, { unique: true });
-eventRegistrationSchema.index({ qrToken: 1 });
 
 module.exports = mongoose.model('EventRegistration', eventRegistrationSchema);

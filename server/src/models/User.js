@@ -44,7 +44,7 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
   return bcrypt.compare(enteredPassword, this.password);
 };
 
-userSchema.index({ email: 1 });
+// email index is created automatically by unique:true — only add role index
 userSchema.index({ role: 1 });
 
 module.exports = mongoose.model('User', userSchema);
