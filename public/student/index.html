@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusPilot – Student</title>
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+
+<div id="toast-container" class="toast-container"></div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="dashboard-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">CP</div>
+      <div>
+        <h2>CampusPilot</h2>
+        <span>Student Portal</span>
+      </div>
+    </div>
+    <div class="sidebar-user">
+      <div id="sidebarAvatar" class="avatar">?</div>
+      <div class="sidebar-user-info">
+        <strong id="sidebarName">Loading...</strong>
+        <span id="sidebarDept"></span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Main</div>
+      <div class="nav-item active" data-view="feed">
+        <span class="nav-icon">🏠</span> Community Feed
+      </div>
+      <div class="nav-item" data-view="announcements">
+        <span class="nav-icon">📢</span> Announcements
+      </div>
+      <div class="nav-item" data-view="notifications">
+        <span class="nav-icon">🔔</span> Notifications
+        <span class="nav-badge" id="notifBadge" style="display:none">0</span>
+      </div>
+
+      <div class="nav-section-title">Library</div>
+      <div class="nav-item" data-view="books">
+        <span class="nav-icon">📚</span> Digital Library
+      </div>
+      <div class="nav-item" data-view="pastquestions">
+        <span class="nav-icon">📄</span> Past Questions
+      </div>
+      <div class="nav-item" data-view="materials">
+        <span class="nav-icon">🗂️</span> Lecture Materials
+      </div>
+      <div class="nav-item" data-view="quiz">
+        <span class="nav-icon">🧠</span> Quizzes
+      </div>
+
+      <div class="nav-section-title">Discover</div>
+      <div class="nav-item" data-view="events">
+        <span class="nav-icon">🗓️</span> Events
+      </div>
+      <div class="nav-item" data-view="opportunities">
+        <span class="nav-icon">🌟</span> Opportunities
+      </div>
+
+      <div class="nav-section-title">Account</div>
+      <div class="nav-item" data-view="profile">
+        <span class="nav-icon">👤</span> My Profile
+      </div>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="nav-item" onclick="toggleTheme()">
+        <span class="nav-icon">🌙</span> Dark Mode
+        <div class="theme-toggle" style="margin-left:auto"></div>
+      </div>
+      <div class="nav-item" onclick="logout()">
+        <span class="nav-icon">🚪</span> Logout
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <header class="top-header">
+      <button class="menu-toggle" id="menuToggle">☰</button>
+      <div class="header-title" id="headerTitle">Community Feed</div>
+      <div class="header-search">
+        <span>🔍</span>
+        <input type="text" id="globalSearch" placeholder="Search...">
+      </div>
+      <div class="header-actions">
+        <div class="icon-btn" onclick="toggleNotifPanel()">
+          🔔
+          <span class="badge" id="notifHeaderBadge" style="display:none">0</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+
+      <!-- FEED -->
+      <div class="view active" id="view-feed" data-title="Community Feed">
+        <div class="welcome-banner" id="welcomeBanner">
+          <h2 id="welcomeMsg">Welcome back! 👋</h2>
+          <p id="welcomeSub">Stay connected with your campus community</p>
+        </div>
+
+        <!-- Post composer -->
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-body" style="padding:16px">
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <div id="composerAvatar" class="post-avatar">?</div>
+              <div style="flex:1">
+                <textarea id="postContent" class="comment-input" style="width:100%;border-radius:12px;padding:12px;min-height:80px;resize:vertical"
+                  placeholder="What's on your mind? Share something with your campus..."></textarea>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;flex-wrap:wrap;gap:8px">
+                  <div style="display:flex;gap:8px">
+                    <label class="btn btn-ghost btn-sm" style="cursor:pointer">
+                      📷 Image <input type="file" id="postImage" accept="image/*" style="display:none">
+                    </label>
+                    <select id="postType" class="form-control" style="padding:6px 10px;border-radius:6px;font-size:0.82rem;width:auto">
+                      <option value="general">General</option>
+                      <option value="question">Question</option>
+                      <option value="resource">Resource</option>
+                      <option value="announcement">Announcement</option>
+                    </select>
+                  </div>
+                  <button class="btn btn-primary btn-sm" onclick="submitPost()">Post</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="feedList"><div class="loading-center"><div class="spinner"></div></div></div>
+        <div id="feedPagination"></div>
+      </div>
+
+      <!-- ANNOUNCEMENTS -->
+      <div class="view" id="view-announcements" data-title="Announcements">
+        <div id="annList"><div class="loading-center"><div class="spinner"></div></div></div>
+      </div>
+
+      <!-- NOTIFICATIONS -->
+      <div class="view" id="view-notifications" data-title="Notifications">
+        <div class="page-header">
+          <h2>Notifications</h2>
+          <button class="btn btn-outline btn-sm" onclick="markAllNotifRead()">Mark All Read</button>
+        </div>
+        <div id="notifList"><div class="loading-center"><div class="spinner"></div></div></div>
+      </div>
+
+      <!-- BOOKS -->
+      <div class="view" id="view-books" data-title="Digital Library">
+        <div class="page-header">
+          <h2>Digital Library</h2>
+        </div>
+        <div class="filter-bar">
+          <input type="text" class="form-control" id="bookSearch" placeholder="Search books...">
+          <select class="form-control" id="bookDept" style="max-width:180px">
+            <option value="">All Departments</option>
+            <option>Computer Science</option><option>Engineering</option><option>Business</option>
+            <option>Medicine</option><option>Law</option><option>Arts</option>
+          </select>
+          <select class="form-control" id="bookLevel" style="max-width:120px">
+            <option value="">All Levels</option>
+            <option value="100">100</option><option value="200">200</option>
+            <option value="300">300</option><option value="400">400</option>
+          </select>
+          <button class="btn btn-primary btn-sm" onclick="loadBooks()">Search</button>
+        </div>
+        <div class="grid-auto" id="bookList"></div>
+        <div id="bookPagination"></div>
+      </div>
+
+      <!-- PAST QUESTIONS -->
+      <div class="view" id="view-pastquestions" data-title="Past Questions">
+        <div class="page-header"><h2>Past Questions</h2></div>
+        <div class="filter-bar">
+          <input type="text" class="form-control" id="pqSearch" placeholder="Search past questions...">
+          <select class="form-control" id="pqDept" style="max-width:180px">
+            <option value="">All Departments</option>
+            <option>Computer Science</option><option>Engineering</option><option>Business</option>
+          </select>
+          <select class="form-control" id="pqLevel" style="max-width:120px">
+            <option value="">All Levels</option>
+            <option value="100">100</option><option value="200">200</option>
+            <option value="300">300</option><option value="400">400</option>
+          </select>
+          <select class="form-control" id="pqYear" style="max-width:120px">
+            <option value="">All Years</option>
+            <option value="2024">2024</option><option value="2023">2023</option>
+            <option value="2022">2022</option><option value="2021">2021</option>
+          </select>
+          <button class="btn btn-primary btn-sm" onclick="loadPastQuestions()">Search</button>
+        </div>
+        <div id="pqList"></div>
+        <div id="pqPagination"></div>
+      </div>
+
+      <!-- MATERIALS -->
+      <div class="view" id="view-materials" data-title="Lecture Materials">
+        <div class="page-header"><h2>Lecture Materials</h2></div>
+        <div class="filter-bar">
+          <input type="text" class="form-control" id="matSearch" placeholder="Search materials...">
+          <select class="form-control" id="matType" style="max-width:160px">
+            <option value="">All Types</option>
+            <option value="slide">Slides</option><option value="note">Notes</option>
+            <option value="assignment">Assignments</option><option value="video">Videos</option>
+          </select>
+          <button class="btn btn-primary btn-sm" onclick="loadMaterials()">Search</button>
+        </div>
+        <div class="grid-auto" id="matList"></div>
+      </div>
+
+      <!-- QUIZ -->
+      <div class="view" id="view-quiz" data-title="Quizzes">
+        <div id="quizListView">
+          <div class="page-header"><h2>Available Quizzes</h2></div>
+          <div class="grid-auto" id="quizList"></div>
+        </div>
+        <div id="quizTakeView" style="display:none">
+          <div id="quizTakeContent"></div>
+        </div>
+      </div>
+
+      <!-- EVENTS -->
+      <div class="view" id="view-events" data-title="Events">
+        <div class="page-header"><h2>Campus Events</h2></div>
+        <div class="filter-bar">
+          <select class="form-control" id="eventCat" style="max-width:180px">
+            <option value="">All Categories</option>
+            <option value="seminar">Seminar</option><option value="workshop">Workshop</option>
+            <option value="competition">Competition</option><option value="conference">Conference</option>
+          </select>
+          <button class="btn btn-primary btn-sm" onclick="loadEvents()">Filter</button>
+        </div>
+        <div class="grid-auto" id="eventList"></div>
+      </div>
+
+      <!-- OPPORTUNITIES -->
+      <div class="view" id="view-opportunities" data-title="Opportunities">
+        <div class="page-header"><h2>Scholarships & Opportunities</h2></div>
+        <div class="filter-bar">
+          <select class="form-control" id="oppType" style="max-width:180px">
+            <option value="">All Types</option>
+            <option value="scholarship">Scholarship</option>
+            <option value="internship">Internship</option>
+            <option value="competition">Competition</option>
+            <option value="fellowship">Fellowship</option>
+          </select>
+          <button class="btn btn-primary btn-sm" onclick="loadOpportunities()">Filter</button>
+        </div>
+        <div class="grid-auto" id="oppList"></div>
+      </div>
+
+      <!-- PROFILE -->
+      <div class="view" id="view-profile" data-title="My Profile">
+        <div class="grid-2" style="max-width:800px">
+          <div class="card">
+            <div class="card-header"><h3>Profile Information</h3></div>
+            <div class="card-body">
+              <div style="text-align:center;margin-bottom:20px">
+                <div id="profileAvatarLarge" style="width:80px;height:80px;margin:0 auto 12px;"></div>
+                <div id="profileName" style="font-size:1.1rem;font-weight:700"></div>
+                <div id="profileRole" style="font-size:0.85rem;color:#64748b;margin-top:4px"></div>
+              </div>
+              <form id="profileForm">
+                <div class="form-group">
+                  <label>Full Name</label>
+                  <input type="text" id="pfFullname" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label>Department</label>
+                  <input type="text" id="pfDept" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label>Level</label>
+                  <select id="pfLevel" class="form-control">
+                    <option value="">Select</option>
+                    <option value="100">100</option><option value="200">200</option>
+                    <option value="300">300</option><option value="400">400</option>
+                  </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
+              </form>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Change Password</h3></div>
+            <div class="card-body">
+              <form id="pwdForm">
+                <div class="form-group">
+                  <label>Current Password</label>
+                  <input type="password" id="currentPwd" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label>New Password</label>
+                  <input type="password" id="newPwd" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Update Password</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </div><!-- /main-content -->
+</div>
+
+<!-- Notification Panel -->
+<div class="notif-panel" id="notifPanel">
+  <div class="notif-panel-header">
+    <h4>Notifications</h4>
+    <button class="btn btn-ghost btn-sm" onclick="markAllNotifRead()">Mark all read</button>
+  </div>
+  <div class="notif-list" id="notifPanelList"></div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/student.js"></script>
+</body>
+</html>

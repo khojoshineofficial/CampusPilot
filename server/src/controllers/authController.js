@@ -3,15 +3,15 @@ const generateToken = require('../utils/generateToken');
 
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, role, department, faculty } = req.body;
-    const exists = await User.findOne({ email });
-    if (exists) return res.status(400).json({ success: false, message: 'Email already registered' });
+    const { fullname, email, password, role, department, level } = req.body;
+    if (await User.findOne({ email }))
+      return res.status(400).json({ success: false, message: 'Email already registered' });
 
-    const user = await User.create({ name, email, password, role, department, faculty });
+    const user = await User.create({ fullname, email, password, role: role || 'student', department, level });
     res.status(201).json({
       success: true,
       token: generateToken(user._id),
-      user: { _id: user._id, name: user.name, email: user.email, role: user.role, avatar: user.avatar },
+      user: { id: user._id, fullname: user.fullname, email: user.email, role: user.role, department: user.department, level: user.level, profileImage: user.profileImage },
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -21,19 +21,19 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user || !(await user.matchPassword(password))) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
-    }
-    if (user.isBanned) return res.status(403).json({ success: false, message: 'Account suspended' });
+    const user = await User.findOne({ email }).select('+password');
+    if (!user || !(await user.matchPassword(password)))
+      return res.status(401).json({ success: false, message: 'Invalid email or password' });
+    if (user.isSuspended)
+      return res.status(403).json({ success: false, message: 'Account suspended' });
 
-    user.lastSeen = Date.now();
-    await user.save();
+    user.lastSeen = new Date();
+    await user.save({ validateBeforeSave: false });
 
     res.json({
       success: true,
       token: generateToken(user._id),
-      user: { _id: user._id, name: user.name, email: user.email, role: user.role, avatar: user.avatar },
+      user: { id: user._id, fullname: user.fullname, email: user.email, role: user.role, department: user.department, level: user.level, profileImage: user.profileImage },
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -46,13 +46,25 @@ exports.getMe = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
-    const allowed = ['name', 'bio', 'department', 'faculty', 'phone', 'socialLinks', 'followedTopics'];
-    const updates = {};
-    allowed.forEach((f) => { if (req.body[f] !== undefined) updates[f] = req.body[f]; });
-    if (req.file) updates.avatar = req.file.path;
-
-    const user = await User.findByIdAndUpdate(req.user._id, updates, { new: true }).select('-password');
+    const { fullname, department, level, interests, courses } = req.body;
+    const update = { fullname, department, level, interests, courses };
+    if (req.file) update.profileImage = req.file.path;
+    const user = await User.findByIdAndUpdate(req.user._id, update, { new: true, runValidators: true });
     res.json({ success: true, user });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const user = await User.findById(req.user._id).select('+password');
+    if (!(await user.matchPassword(currentPassword)))
+      return res.status(400).json({ success: false, message: 'Current password incorrect' });
+    user.password = newPassword;
+    await user.save();
+    res.json({ success: true, message: 'Password updated' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

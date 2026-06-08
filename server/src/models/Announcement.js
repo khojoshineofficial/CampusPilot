@@ -1,35 +1,18 @@
 const mongoose = require('mongoose');
 
 const announcementSchema = new mongoose.Schema({
-  title: { type: String, required: true, trim: true },
-  content: { type: String, required: true },
-  category: {
-    type: String,
-    enum: [
-      'academic', 'registration', 'timetable', 'examination',
-      'emergency', 'faculty', 'department', 'student_association', 'general'
-    ],
-    default: 'general',
-  },
-  attachments: [{ name: String, url: String, type: String }],
-  images: [{ type: String }],
-  priority: { type: String, enum: ['low', 'normal', 'high', 'urgent'], default: 'normal' },
-  isPublished: { type: Boolean, default: false },
-  publishedAt: { type: Date },
-  scheduledFor: { type: Date },
-  expiresAt: { type: Date },
-  targetAudience: [{ type: String }],
-  views: { type: Number, default: 0 },
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  department: { type: String },
-  faculty: { type: String },
-  isPinned: { type: Boolean, default: false },
+  title:            { type: String, required: true, trim: true },
+  content:          { type: String, required: true },
+  createdBy:        { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  targetRole:       { type: String, enum: ['all','student','lecturer'], default: 'all' },
+  targetDepartment: { type: String, default: 'all' },
+  targetLevel:      { type: String, default: 'all' },
+  priority:         { type: String, enum: ['normal','high','urgent'], default: 'normal' },
+  isPublished:      { type: Boolean, default: true },
+  isPinned:         { type: Boolean, default: false },
+  expiresAt:        { type: Date },
+  views:            { type: Number, default: 0 },
+  attachmentUrl:    { type: String },
 }, { timestamps: true });
-
-announcementSchema.index({ isPublished: 1, publishedAt: -1 });
-announcementSchema.index({ category: 1 });
-announcementSchema.index({ priority: 1 });
-announcementSchema.index({ createdBy: 1 });
-announcementSchema.index({ title: 'text', content: 'text' });
 
 module.exports = mongoose.model('Announcement', announcementSchema);

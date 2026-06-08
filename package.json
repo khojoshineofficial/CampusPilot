@@ -1,21 +1,13 @@
 {
   "name": "campuspilot",
-  "version": "1.0.0",
-  "description": "CampusPilot - Digital Campus Ecosystem",
+  "version": "2.0.0",
+  "description": "Campus Pilot – Your Smart Campus Companion",
   "scripts": {
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "cd server && npm run dev",
-    "client": "cd client && npm start",
-    "render:build": "cd server && npm install && cd ../client && npm install && npm run build",
-    "render:start": "NODE_ENV=production node server/src/index.js",
-    "build": "cd client && npm run build",
     "start": "NODE_ENV=production node server/src/index.js",
-    "install:all": "cd server && npm install && cd ../client && npm install"
+    "dev": "cd server && npm run dev",
+    "render:build": "cd server && npm install",
+    "render:start": "NODE_ENV=production node server/src/index.js",
+    "seed": "cd server && npm run seed"
   },
-  "devDependencies": {
-    "concurrently": "^8.2.2"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  }
+  "engines": { "node": ">=18.0.0" }
 }

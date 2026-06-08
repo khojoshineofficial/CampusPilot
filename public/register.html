@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusPilot – Register</title>
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-card" style="max-width:500px">
+    <div class="auth-logo">
+      <div style="width:48px;height:48px;background:linear-gradient(135deg,#2563EB,#7c3aed);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:1.2rem;">CP</div>
+      <div>
+        <h1 style="font-size:1.3rem;font-weight:800;color:#2563EB">CampusPilot</h1>
+        <div style="font-size:0.72rem;color:#64748b">Your Smart Campus Companion</div>
+      </div>
+    </div>
+
+    <span id="authEmoji" class="auth-emoji">🎓</span>
+    <h2 class="auth-title">Create Account</h2>
+    <p class="auth-subtitle">Join your campus community</p>
+
+    <form id="registerForm">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="fullname" class="form-control" placeholder="e.g. Ama Owusu" required>
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="email" class="form-control" placeholder="you@campus.edu" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="password" class="form-control" placeholder="••••••••" required minlength="6">
+        </div>
+        <div class="form-group">
+          <label>Role</label>
+          <select id="role" class="form-control">
+            <option value="student">Student</option>
+            <option value="lecturer">Lecturer</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Department</label>
+          <input type="text" id="department" class="form-control" placeholder="e.g. Computer Science">
+        </div>
+        <div class="form-group" id="levelGroup">
+          <label>Level</label>
+          <select id="level" class="form-control">
+            <option value="">Select</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+            <option value="300">300</option>
+            <option value="400">400</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block btn-lg" id="registerBtn">
+        Create Account
+      </button>
+    </form>
+
+    <p style="text-align:center;margin-top:20px;font-size:0.88rem;color:#64748b">
+      Already have an account? <a href="/" style="color:#2563EB;font-weight:600">Sign In</a>
+    </p>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/utils.js"></script>
+<script>
+  initTheme();
+
+  document.getElementById('role').addEventListener('change', function() {
+    document.getElementById('levelGroup').style.display = this.value === 'lecturer' ? 'none' : '';
+  });
+
+  document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('registerBtn');
+    const emoji = document.getElementById('authEmoji');
+    btn.disabled = true;
+    btn.textContent = 'Creating account...';
+
+    try {
+      const { token, user } = await api.register({
+        fullname: document.getElementById('fullname').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        password: document.getElementById('password').value,
+        role: document.getElementById('role').value,
+        department: document.getElementById('department').value.trim(),
+        level: document.getElementById('level').value,
+      });
+
+      localStorage.setItem('cp_token', token);
+      localStorage.setItem('cp_user', JSON.stringify(user));
+
+      emoji.textContent = '😊';
+      emoji.classList.add('bounce');
+      showToast('Account created! Welcome to CampusPilot!', 'success');
+
+      setTimeout(() => window.location.href = `/${user.role}`, 900);
+    } catch (err) {
+      emoji.textContent = '😢';
+      emoji.classList.add('shake');
+      setTimeout(() => emoji.classList.remove('shake'), 1200);
+      showToast(err.message || 'Registration failed.', 'error');
+      btn.disabled = false;
+      btn.textContent = 'Create Account';
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusPilot – Admin</title>
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+<div id="toast-container" class="toast-container"></div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="dashboard-layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">CP</div>
+      <div><h2>CampusPilot</h2><span>Admin Panel</span></div>
+    </div>
+    <div class="sidebar-user">
+      <div id="sidebarAvatar" class="avatar">A</div>
+      <div class="sidebar-user-info">
+        <strong id="sidebarName">Admin</strong>
+        <span>Administrator</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Dashboard</div>
+      <div class="nav-item active" data-view="overview"><span class="nav-icon">📊</span> Overview</div>
+      <div class="nav-item" data-view="notifications"><span class="nav-icon">🔔</span> Notifications
+        <span class="nav-badge" id="notifBadge" style="display:none">0</span>
+      </div>
+
+      <div class="nav-section-title">User Management</div>
+      <div class="nav-item" data-view="users"><span class="nav-icon">👥</span> All Users</div>
+      <div class="nav-item" data-view="students"><span class="nav-icon">🎓</span> Students</div>
+      <div class="nav-item" data-view="lecturers"><span class="nav-icon">👨‍🏫</span> Lecturers</div>
+
+      <div class="nav-section-title">Content</div>
+      <div class="nav-item" data-view="announcements"><span class="nav-icon">📢</span> Announcements</div>
+      <div class="nav-item" data-view="events"><span class="nav-icon">🗓️</span> Events</div>
+      <div class="nav-item" data-view="opportunities"><span class="nav-icon">🌟</span> Opportunities</div>
+      <div class="nav-item" data-view="library"><span class="nav-icon">📚</span> Library</div>
+      <div class="nav-item" data-view="posts"><span class="nav-icon">📰</span> Posts</div>
+
+      <div class="nav-section-title">Actions</div>
+      <div class="nav-item" data-view="send-notification"><span class="nav-icon">📨</span> Send Notification</div>
+      <div class="nav-item" data-view="create-event"><span class="nav-icon">➕</span> Create Event</div>
+      <div class="nav-item" data-view="create-announcement"><span class="nav-icon">✍️</span> Post Announcement</div>
+      <div class="nav-item" data-view="create-opportunity"><span class="nav-icon">🌐</span> Add Opportunity</div>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="nav-item" onclick="toggleTheme()"><span class="nav-icon">🌙</span> Dark Mode <div class="theme-toggle" style="margin-left:auto"></div></div>
+      <div class="nav-item" onclick="logout()"><span class="nav-icon">🚪</span> Logout</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="top-header">
+      <button class="menu-toggle" id="menuToggle">☰</button>
+      <div class="header-title" id="headerTitle">Overview</div>
+      <div class="header-search">
+        <span>🔍</span>
+        <input type="text" id="globalSearch" placeholder="Search users...">
+      </div>
+      <div class="header-actions">
+        <div class="icon-btn" onclick="document.getElementById('notifPanel').classList.toggle('open')">🔔
+          <span class="badge" id="notifHeaderBadge" style="display:none">0</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+
+      <!-- OVERVIEW -->
+      <div class="view active" id="view-overview" data-title="Dashboard Overview">
+        <div class="welcome-banner">
+          <h2 id="welcomeMsg">Admin Dashboard 🛡️</h2>
+          <p>Manage users, content, and platform settings</p>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon blue">👥</div><div class="stat-info"><div class="stat-value" id="statUsers">-</div><div class="stat-label">Total Users</div></div></div>
+          <div class="stat-card"><div class="stat-icon green">🎓</div><div class="stat-info"><div class="stat-value" id="statStudents">-</div><div class="stat-label">Students</div></div></div>
+          <div class="stat-card"><div class="stat-icon purple">👨‍🏫</div><div class="stat-info"><div class="stat-value" id="statLecturers">-</div><div class="stat-label">Lecturers</div></div></div>
+          <div class="stat-card"><div class="stat-icon blue">📚</div><div class="stat-info"><div class="stat-value" id="statBooks">-</div><div class="stat-label">Books</div></div></div>
+          <div class="stat-card"><div class="stat-icon orange">🗓️</div><div class="stat-info"><div class="stat-value" id="statEvents">-</div><div class="stat-label">Events</div></div></div>
+          <div class="stat-card"><div class="stat-icon green">🌟</div><div class="stat-info"><div class="stat-value" id="statOpps">-</div><div class="stat-label">Opportunities</div></div></div>
+          <div class="stat-card"><div class="stat-icon orange">📰</div><div class="stat-info"><div class="stat-value" id="statPosts">-</div><div class="stat-label">Posts</div></div></div>
+          <div class="stat-card"><div class="stat-icon purple">🧠</div><div class="stat-info"><div class="stat-value" id="statQuizzes">-</div><div class="stat-label">Quizzes</div></div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><h3>Recent Users</h3></div>
+            <div class="card-body" id="recentUsers"><div class="loading-center"><div class="spinner"></div></div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Users by Department</h3></div>
+            <div class="card-body" id="deptStats"><div class="loading-center"><div class="spinner"></div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTIFICATIONS -->
+      <div class="view" id="view-notifications" data-title="Notifications">
+        <div class="page-header"><h2>Notifications</h2>
+          <button class="btn btn-outline btn-sm" onclick="markAllNotifRead()">Mark All Read</button>
+        </div>
+        <div id="notifList"></div>
+      </div>
+
+      <!-- USERS -->
+      <div class="view" id="view-users" data-title="All Users">
+        <div class="page-header">
+          <h2>All Users</h2>
+        </div>
+        <div class="filter-bar">
+          <input type="text" class="form-control" id="userSearch" placeholder="Search by name or email...">
+          <select class="form-control" id="userRoleFilter" style="max-width:140px">
+            <option value="">All Roles</option><option value="student">Student</option>
+            <option value="lecturer">Lecturer</option><option value="admin">Admin</option>
+          </select>
+          <button class="btn btn-primary btn-sm" onclick="loadUsers()">Search</button>
+        </div>
+        <div class="card">
+          <div class="table-wrap" id="usersTable"><div class="loading-center"><div class="spinner"></div></div></div>
+        </div>
+        <div id="usersPagination"></div>
+      </div>
+
+      <!-- STUDENTS -->
+      <div class="view" id="view-students" data-title="Students">
+        <div class="page-header"><h2>Students</h2></div>
+        <div class="card">
+          <div class="table-wrap" id="studentsTable"><div class="loading-center"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+
+      <!-- LECTURERS -->
+      <div class="view" id="view-lecturers" data-title="Lecturers">
+        <div class="page-header"><h2>Lecturers</h2></div>
+        <div class="card">
+          <div class="table-wrap" id="lecturersTable"><div class="loading-center"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+
+      <!-- ANNOUNCEMENTS -->
+      <div class="view" id="view-announcements" data-title="Announcements">
+        <div class="page-header"><h2>Announcements</h2>
+          <button class="btn btn-primary btn-sm" onclick="showView('create-announcement');document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.querySelector('[data-view=create-announcement]').classList.add('active')">+ New</button>
+        </div>
+        <div id="annList"></div>
+      </div>
+
+      <!-- CREATE ANNOUNCEMENT -->
+      <div class="view" id="view-create-announcement" data-title="Post Announcement">
+        <div style="max-width:600px">
+          <div class="card">
+            <div class="card-header"><h3>Post Announcement</h3></div>
+            <div class="card-body">
+              <form id="annForm">
+                <div class="form-group"><label>Title *</label><input type="text" id="annTitle" class="form-control" required></div>
+                <div class="form-group"><label>Content *</label><textarea id="annContent" class="form-control" rows="4" required></textarea></div>
+                <div class="form-row">
+                  <div class="form-group"><label>Target Role</label>
+                    <select id="annRole" class="form-control"><option value="all">All</option><option value="student">Students</option><option value="lecturer">Lecturers</option></select>
+                  </div>
+                  <div class="form-group"><label>Priority</label>
+                    <select id="annPriority" class="form-control"><option value="normal">Normal</option><option value="high">High</option><option value="urgent">Urgent</option></select>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group"><label>Pin</label>
+                    <select id="annPin" class="form-control"><option value="false">No</option><option value="true">Yes</option></select>
+                  </div>
+                  <div class="form-group"><label>Expires At</label><input type="date" id="annExpiry" class="form-control"></div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block btn-lg">Post Announcement</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EVENTS -->
+      <div class="view" id="view-events" data-title="Events">
+        <div class="page-header"><h2>Events</h2>
+          <button class="btn btn-primary btn-sm" onclick="showView('create-event');document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.querySelector('[data-view=create-event]').classList.add('active')">+ Create</button>
+        </div>
+        <div class="grid-auto" id="eventList"></div>
+      </div>
+
+      <!-- CREATE EVENT -->
+      <div class="view" id="view-create-event" data-title="Create Event">
+        <div style="max-width:600px">
+          <div class="card">
+            <div class="card-header"><h3>Create Event</h3></div>
+            <div class="card-body">
+              <form id="eventForm">
+                <div class="form-group"><label>Title *</label><input type="text" id="evTitle" class="form-control" required></div>
+                <div class="form-group"><label>Description *</label><textarea id="evDesc" class="form-control" rows="3" required></textarea></div>
+                <div class="form-row">
+                  <div class="form-group"><label>Category</label>
+                    <select id="evCat" class="form-control"><option value="seminar">Seminar</option><option value="workshop">Workshop</option><option value="competition">Competition</option><option value="conference">Conference</option><option value="social">Social</option><option value="other">Other</option></select>
+                  </div>
+                  <div class="form-group"><label>Organizer *</label><input type="text" id="evOrg" class="form-control" required></div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group"><label>Date *</label><input type="date" id="evDate" class="form-control" required></div>
+                  <div class="form-group"><label>Time *</label><input type="time" id="evTime" class="form-control" required></div>
+                </div>
+                <div class="form-group"><label>Venue *</label><input type="text" id="evVenue" class="form-control" required></div>
+                <div class="form-group"><label>Registration Link</label><input type="url" id="evRegLink" class="form-control"></div>
+                <div class="form-group"><label>Target Department</label>
+                  <select id="evDept" class="form-control"><option value="all">All Departments</option><option>Computer Science</option><option>Engineering</option><option>Business</option></select>
+                </div>
+                <div class="form-group"><label>Banner Image</label><input type="file" id="evBanner" class="form-control" accept="image/*"></div>
+                <button type="submit" class="btn btn-primary btn-block btn-lg" id="evSubmitBtn">Create Event</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OPPORTUNITIES -->
+      <div class="view" id="view-opportunities" data-title="Opportunities">
+        <div class="page-header"><h2>Opportunities</h2>
+          <button class="btn btn-primary btn-sm" onclick="showView('create-opportunity');document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.querySelector('[data-view=create-opportunity]').classList.add('active')">+ Add</button>
+        </div>
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchOppTab('approved',this)">✅ Approved</button>
+          <button class="tab-btn" onclick="switchOppTab('pending',this)">⏳ Pending Approval</button>
+        </div>
+        <div class="grid-auto" id="oppList"></div>
+      </div>
+
+      <!-- CREATE OPPORTUNITY -->
+      <div class="view" id="view-create-opportunity" data-title="Add Opportunity">
+        <div style="max-width:600px">
+          <div class="card">
+            <div class="card-header"><h3>Add Opportunity</h3></div>
+            <div class="card-body">
+              <form id="oppForm">
+                <div class="form-group"><label>Title *</label><input type="text" id="opTitle" class="form-control" required></div>
+                <div class="form-group"><label>Description *</label><textarea id="opDesc" class="form-control" rows="3" required></textarea></div>
+                <div class="form-row">
+                  <div class="form-group"><label>Type *</label>
+                    <select id="opType" class="form-control" required><option value="scholarship">Scholarship</option><option value="internship">Internship</option><option value="competition">Competition</option><option value="fellowship">Fellowship</option><option value="training">Training</option><option value="other">Other</option></select>
+                  </div>
+                  <div class="form-group"><label>Organization *</label><input type="text" id="opOrg" class="form-control" required></div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group"><label>Location</label><input type="text" id="opLoc" class="form-control"></div>
+                  <div class="form-group"><label>Deadline</label><input type="date" id="opDeadline" class="form-control"></div>
+                </div>
+                <div class="form-group"><label>Application Link</label><input type="url" id="opLink" class="form-control"></div>
+                <div class="form-group"><label>Eligibility</label><textarea id="opElig" class="form-control" rows="2"></textarea></div>
+                <div class="form-group"><label>Benefits</label><textarea id="opBenefits" class="form-control" rows="2"></textarea></div>
+                <div class="form-group" style="display:flex;align-items:center;gap:12px">
+                  <label style="margin:0">Remote</label>
+                  <input type="checkbox" id="opRemote" style="width:18px;height:18px">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block btn-lg">Add Opportunity</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIBRARY -->
+      <div class="view" id="view-library" data-title="Library">
+        <div class="page-header"><h2>Digital Library</h2></div>
+        <div class="card">
+          <div class="table-wrap" id="libraryTable"><div class="loading-center"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+
+      <!-- POSTS -->
+      <div class="view" id="view-posts" data-title="Community Posts">
+        <div class="page-header"><h2>Community Posts</h2></div>
+        <div id="postsList"></div>
+      </div>
+
+      <!-- SEND NOTIFICATION -->
+      <div class="view" id="view-send-notification" data-title="Send Notification">
+        <div style="max-width:600px">
+          <div class="card">
+            <div class="card-header"><h3>Send Notification</h3></div>
+            <div class="card-body">
+              <form id="notifForm">
+                <div class="form-group"><label>Title *</label><input type="text" id="ntTitle" class="form-control" required></div>
+                <div class="form-group"><label>Content *</label><textarea id="ntContent" class="form-control" rows="3" required></textarea></div>
+                <div class="form-row">
+                  <div class="form-group"><label>Recipient Role</label>
+                    <select id="ntRole" class="form-control"><option value="all">All</option><option value="student">Students</option><option value="lecturer">Lecturers</option></select>
+                  </div>
+                  <div class="form-group"><label>Type</label>
+                    <select id="ntType" class="form-control"><option value="system">System</option><option value="announcement">Announcement</option><option value="general">General</option></select>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group"><label>Icon (emoji)</label><input type="text" id="ntIcon" class="form-control" value="🔔" style="font-size:1.4rem"></div>
+                  <div class="form-group"><label>Link (optional)</label><input type="url" id="ntLink" class="form-control"></div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block btn-lg">Send Notification</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Notification Panel -->
+<div class="notif-panel" id="notifPanel">
+  <div class="notif-panel-header">
+    <h4>Notifications</h4>
+    <button class="btn btn-ghost btn-sm" onclick="markAllNotifRead()">Mark all read</button>
+  </div>
+  <div class="notif-list" id="notifPanelList"></div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/admin.js"></script>
+</body>
+</html>

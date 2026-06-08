@@ -2,38 +2,50 @@ const Notification = require('../models/Notification');
 
 exports.getNotifications = async (req, res) => {
   try {
-    const { page = 1, limit = 20, unreadOnly } = req.query;
-    const query = { recipient: req.user._id };
-    if (unreadOnly === 'true') query.isRead = false;
-
-    const skip = (Number(page) - 1) * Number(limit);
-    const [notifications, total, unreadCount] = await Promise.all([
-      Notification.find(query).sort('-createdAt').skip(skip).limit(Number(limit))
-        .populate('sender', 'name avatar'),
-      Notification.countDocuments(query),
-      Notification.countDocuments({ recipient: req.user._id, isRead: false }),
-    ]);
-
-    res.json({ success: true, notifications, total, unreadCount });
+    const { role, department, level } = req.user;
+    const filter = {
+      $or: [
+        { recipientRole: 'all' },
+        { recipientRole: role },
+      ],
+    };
+    const notifications = await Notification.find(filter)
+      .sort('-createdAt')
+      .limit(50);
+    const withRead = notifications.map(n => ({
+      ...n.toObject(),
+      isRead: n.readBy.includes(req.user._id),
+    }));
+    res.json({ success: true, notifications: withRead });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
-exports.markAsRead = async (req, res) => {
+exports.createNotification = async (req, res) => {
   try {
-    await Notification.findByIdAndUpdate(req.params.id, { isRead: true, readAt: Date.now() });
+    const notification = await Notification.create({ ...req.body, createdBy: req.user._id });
+    res.status(201).json({ success: true, notification });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.markRead = async (req, res) => {
+  try {
+    await Notification.findByIdAndUpdate(req.params.id, { $addToSet: { readBy: req.user._id } });
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
-exports.markAllAsRead = async (req, res) => {
+exports.markAllRead = async (req, res) => {
   try {
+    const { role } = req.user;
     await Notification.updateMany(
-      { recipient: req.user._id, isRead: false },
-      { isRead: true, readAt: Date.now() }
+      { $or: [{ recipientRole: 'all' }, { recipientRole: role }] },
+      { $addToSet: { readBy: req.user._id } }
     );
     res.json({ success: true });
   } catch (err) {
@@ -43,8 +55,8 @@ exports.markAllAsRead = async (req, res) => {
 
 exports.deleteNotification = async (req, res) => {
   try {
-    await Notification.findOneAndDelete({ _id: req.params.id, recipient: req.user._id });
-    res.json({ success: true });
+    await Notification.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Deleted' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

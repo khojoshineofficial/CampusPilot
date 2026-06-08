@@ -1,15 +1,14 @@
 const router = require('express').Router();
-const ctrl = require('../controllers/announcementController');
+const c = require('../controllers/announcementController');
 const { protect, authorize } = require('../middleware/auth');
-const { upload } = require('../config/cloudinary');
+const { makeUpload } = require('../config/cloudinary');
 
-const setFolder = (req, res, next) => { req.uploadFolder = 'campuspilot/announcements'; next(); };
-const allowedRoles = ['admin', 'department', 'lecturer', 'organization', 'club'];
+const upload = makeUpload('announcements', ['pdf', 'jpg', 'jpeg', 'png']);
 
-router.get('/', ctrl.getAnnouncements);
-router.get('/:id', ctrl.getAnnouncement);
-router.post('/', protect, authorize(...allowedRoles), setFolder, upload.array('attachments', 5), ctrl.createAnnouncement);
-router.put('/:id', protect, authorize(...allowedRoles, 'admin'), ctrl.updateAnnouncement);
-router.delete('/:id', protect, ctrl.deleteAnnouncement);
+router.get('/', protect, c.getAnnouncements);
+router.post('/', protect, authorize('admin', 'lecturer'), upload.single('attachment'), c.createAnnouncement);
+router.put('/:id', protect, authorize('admin', 'lecturer'), c.updateAnnouncement);
+router.delete('/:id', protect, authorize('admin'), c.deleteAnnouncement);
+router.post('/:id/view', protect, c.viewAnnouncement);
 
 module.exports = router;
