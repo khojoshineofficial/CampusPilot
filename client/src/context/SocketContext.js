@@ -10,7 +10,9 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    const s = io(process.env.REACT_APP_SOCKET_URL || '', {
+    // In dev the CRA proxy forwards to Express; in production same origin serves both
+    const socketUrl = process.env.REACT_APP_SOCKET_URL || (process.env.NODE_ENV === 'production' ? window.location.origin : 'http://localhost:5000');
+    const s = io(socketUrl, {
       auth: { token },
       autoConnect: true,
     });
