@@ -24,3 +24,5 @@ services:
         sync: false
       - key: CLIENT_URL
         sync: false
+      - key: SEED_SECRET
+        sync: false

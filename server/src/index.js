@@ -45,6 +45,25 @@ app.use('/api/analytics', require('./routes/analytics'));
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date() }));
 
+// Seed route — protected by SEED_SECRET env var so it can be triggered on Render
+app.post('/api/seed', async (req, res) => {
+  const secret = req.headers['x-seed-secret'] || req.query.secret;
+  if (!process.env.SEED_SECRET || secret !== process.env.SEED_SECRET) {
+    return res.status(403).json({ success: false, message: 'Forbidden' });
+  }
+  try {
+    // Run seed inline by importing and calling it
+    const { execFile } = require('child_process');
+    const seedPath = require('path').join(__dirname, 'utils/seed.js');
+    execFile('node', [seedPath], { env: process.env }, (err, stdout, stderr) => {
+      if (err) return res.status(500).json({ success: false, message: stderr || err.message });
+      res.json({ success: true, output: stdout });
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // Serve React build in production — Express handles all non-API routes
 if (isProd) {
   const buildPath = path.join(__dirname, '../../client/build');
