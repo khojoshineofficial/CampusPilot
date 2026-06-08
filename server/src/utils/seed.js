@@ -13,6 +13,14 @@ const seed = async () => {
   await mongoose.connect(process.env.MONGO_URI);
   console.log('Connected to MongoDB');
 
+  // Skip if data already exists (idempotent — safe to run on every deploy)
+  const existing = await User.findOne({ email: 'admin@campuspilot.com' });
+  if (existing) {
+    console.log('✅ Seed data already exists — skipping.');
+    await mongoose.disconnect();
+    return;
+  }
+
   await Promise.all([
     User.deleteMany({}),
     Book.deleteMany({}),

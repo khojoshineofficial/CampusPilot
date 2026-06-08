@@ -2,7 +2,7 @@ services:
   - type: web
     name: campuspilot
     env: node
-    buildCommand: npm run render:build
+    buildCommand: cd server && npm install && node src/utils/seed.js
     startCommand: npm run render:start
     envVars:
       - key: NODE_ENV
