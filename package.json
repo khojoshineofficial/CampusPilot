@@ -6,10 +6,11 @@
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "cd server && npm run dev",
     "client": "cd client && npm start",
+    "render:build": "cd server && npm install && cd ../client && npm install && npm run build",
+    "render:start": "NODE_ENV=production node server/src/index.js",
     "build": "cd client && npm run build",
-    "start": "cd server && npm start",
-    "install:all": "npm install && cd server && npm install && cd ../client && npm install",
-    "postinstall": "npm run install:all 2>/dev/null || true"
+    "start": "NODE_ENV=production node server/src/index.js",
+    "install:all": "cd server && npm install && cd ../client && npm install"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

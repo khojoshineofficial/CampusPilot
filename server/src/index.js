@@ -11,17 +11,22 @@ const app = express();
 const server = http.createServer(app);
 
 const isProd = process.env.NODE_ENV === 'production';
-const clientUrl = process.env.CLIENT_URL || 'http://localhost:3000';
+
+// In production on Render, frontend is served from the same Express process
+// so CORS is only needed in development. Accept configured CLIENT_URL or all origins.
+const corsOrigin = isProd
+  ? (process.env.CLIENT_URL || true)   // true = reflect request origin (same-origin on Render)
+  : '*';
 
 const io = new Server(server, {
-  cors: { origin: isProd ? clientUrl : '*', methods: ['GET', 'POST'], credentials: true },
+  cors: { origin: corsOrigin, methods: ['GET', 'POST'], credentials: true },
 });
 
 connectDB();
 setupSocket(io);
 app.set('io', io);
 
-app.use(cors({ origin: isProd ? clientUrl : '*', credentials: true }));
+app.use(cors({ origin: corsOrigin, credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
