@@ -3,15 +3,15 @@ const generateToken = require('../utils/generateToken');
 
 exports.register = async (req, res) => {
   try {
-    const { fullname, email, password, role, department, level } = req.body;
+    const { fullname, email, password, role, department, level, phone } = req.body;
     if (await User.findOne({ email }))
       return res.status(400).json({ success: false, message: 'Email already registered' });
 
-    const user = await User.create({ fullname, email, password, role: role || 'student', department, level });
+    const user = await User.create({ fullname, email, password, role: role || 'student', department, level, phone: phone || '' });
     res.status(201).json({
       success: true,
       token: generateToken(user._id),
-      user: { id: user._id, fullname: user.fullname, email: user.email, role: user.role, department: user.department, level: user.level, profileImage: user.profileImage },
+      user: { id: user._id, fullname: user.fullname, email: user.email, role: user.role, department: user.department, level: user.level, phone: user.phone, profileImage: user.profileImage },
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -46,8 +46,8 @@ exports.getMe = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
-    const { fullname, department, level, interests, courses } = req.body;
-    const update = { fullname, department, level, interests, courses };
+    const { fullname, department, level, phone, interests, courses } = req.body;
+    const update = { fullname, department, level, phone, interests, courses };
     if (req.file) update.profileImage = req.file.path;
     const user = await User.findByIdAndUpdate(req.user._id, update, { new: true, runValidators: true });
     res.json({ success: true, user });

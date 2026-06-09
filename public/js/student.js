@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Profile form prefill
   document.getElementById('pfFullname').value = currentUser.fullname;
+  document.getElementById('pfPhone').value = currentUser.phone || '';
   document.getElementById('pfDept').value = currentUser.department || '';
   document.getElementById('pfLevel').value = currentUser.level || '';
   document.getElementById('profileName').textContent = currentUser.fullname;
@@ -48,6 +49,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       const fd = new FormData();
       fd.append('fullname', document.getElementById('pfFullname').value);
+      fd.append('phone', document.getElementById('pfPhone').value.trim());
       fd.append('department', document.getElementById('pfDept').value);
       fd.append('level', document.getElementById('pfLevel').value);
       await api.request('PUT', '/auth/profile', fd, true);

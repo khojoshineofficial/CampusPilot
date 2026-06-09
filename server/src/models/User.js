@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
   role:         { type: String, enum: ['admin','lecturer','student'], default: 'student' },
   department:   { type: String, default: '' },
   level:        { type: String, default: '' },
+  phone:        { type: String, default: '' },
   profileImage: { type: String, default: '' },
   isApproved:   { type: Boolean, default: true },
   isSuspended:  { type: Boolean, default: false },

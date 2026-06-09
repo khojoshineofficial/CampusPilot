@@ -1,4 +1,6 @@
 const Announcement = require('../models/Announcement');
+const User = require('../models/User');
+const { sendAnnouncementSms } = require('../utils/sms');
 
 exports.getAnnouncements = async (req, res) => {
   try {
@@ -24,7 +26,25 @@ exports.createAnnouncement = async (req, res) => {
     const data = { ...req.body, createdBy: req.user._id };
     if (req.file) data.attachmentUrl = req.file.path;
     const announcement = await Announcement.create(data);
+
+    // Respond immediately — send SMS in background
     res.status(201).json({ success: true, announcement });
+
+    // Build user filter based on targetRole
+    const userFilter = { isSuspended: false, phone: { $ne: '' } };
+    if (announcement.targetRole && announcement.targetRole !== 'all') {
+      userFilter.role = announcement.targetRole;
+    } else {
+      userFilter.role = { $in: ['student', 'lecturer'] };
+    }
+
+    const users = await User.find(userFilter).select('phone');
+    const phones = users.map(u => u.phone).filter(Boolean);
+
+    if (phones.length) {
+      sendAnnouncementSms(phones, announcement.title, announcement.content)
+        .catch(err => console.error('[SMS] Announcement SMS error:', err.message));
+    }
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('composerAvatar').outerHTML = avatarHtml(currentUser, 44);
   document.getElementById('welcomeMsg').textContent = `Hello, Dr. ${currentUser.fullname.split(' ').pop()}! 👋`;
   document.getElementById('pfFullname').value = currentUser.fullname;
+  document.getElementById('pfPhone').value = currentUser.phone || '';
   document.getElementById('pfDept').value = currentUser.department || '';
 
   initSidebar();
@@ -155,6 +156,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       const fd = new FormData();
       fd.append('fullname', document.getElementById('pfFullname').value);
+      fd.append('phone', document.getElementById('pfPhone').value.trim());
       fd.append('department', document.getElementById('pfDept').value);
       await api.request('PUT', '/auth/profile', fd, true);
       showToast('Profile updated!', 'success');

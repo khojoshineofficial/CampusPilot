@@ -23,20 +23,29 @@
 
     <form id="registerForm">
       <div class="form-group">
-        <label>Full Name</label>
+        <label>Full Name *</label>
         <input type="text" id="fullname" class="form-control" placeholder="e.g. Ama Owusu" required>
       </div>
       <div class="form-group">
-        <label>Email Address</label>
+        <label>Email Address *</label>
         <input type="email" id="email" class="form-control" placeholder="you@campus.edu" required>
+      </div>
+      <div class="form-group">
+        <label>Phone Number * <span style="font-size:0.75rem;color:#64748b">(for SMS notifications)</span></label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:11px 12px;font-size:0.9rem;white-space:nowrap;color:var(--text-muted)">🇬🇭 +233</div>
+          <input type="tel" id="phone" class="form-control" placeholder="24 000 0000" required
+            pattern="[0-9]{9,10}" title="Enter a valid Ghanaian phone number">
+        </div>
+        <div style="font-size:0.72rem;color:#94a3b8;margin-top:4px">e.g. 0241234567 or 241234567</div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Password</label>
+          <label>Password *</label>
           <input type="password" id="password" class="form-control" placeholder="••••••••" required minlength="6">
         </div>
         <div class="form-group">
-          <label>Role</label>
+          <label>Role *</label>
           <select id="role" class="form-control">
             <option value="student">Student</option>
             <option value="lecturer">Lecturer</option>
@@ -79,6 +88,14 @@
     document.getElementById('levelGroup').style.display = this.value === 'lecturer' ? 'none' : '';
   });
 
+  // Normalise phone: strip leading 0, ensure it starts with 0 for local format
+  function normalisePhone(raw) {
+    let p = raw.replace(/\s+/g, '').replace(/[^0-9]/g, '');
+    // If they enter without leading 0 (9 digits), add it
+    if (p.length === 9) p = '0' + p;
+    return p; // e.g. "0241234567"
+  }
+
   document.getElementById('registerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = document.getElementById('registerBtn');
@@ -88,12 +105,13 @@
 
     try {
       const { token, user } = await api.register({
-        fullname: document.getElementById('fullname').value.trim(),
-        email: document.getElementById('email').value.trim(),
-        password: document.getElementById('password').value,
-        role: document.getElementById('role').value,
+        fullname:   document.getElementById('fullname').value.trim(),
+        email:      document.getElementById('email').value.trim(),
+        password:   document.getElementById('password').value,
+        role:       document.getElementById('role').value,
         department: document.getElementById('department').value.trim(),
-        level: document.getElementById('level').value,
+        level:      document.getElementById('level').value,
+        phone:      normalisePhone(document.getElementById('phone').value),
       });
 
       localStorage.setItem('cp_token', token);
